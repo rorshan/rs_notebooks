@@ -1,0 +1,24 @@
+channels:
+- conda-forge
+- defaults
+dependencies:
+# 3.11 is not a hard requirement but numba does not support 3.12 at the time of testing
+- python=3.11
+- ipykernel
+- geopandas
+- pandas
+- numpy<2.0
+- matplotlib
+- folium
+- rioxarray
+- jupyterlab
+- pip
+- pip:
+  - planetary-computer
+  - pystac-client
+  - rich
+  - stackstac
+  - bottleneck
+  - geogif
+  - xarray-spatial
+  - rasterstats

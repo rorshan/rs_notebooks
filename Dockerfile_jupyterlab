@@ -1,0 +1,36 @@
+FROM condaforge/mambaforge
+
+# variable for paths and env name
+ARG dest_yml=/tmp/environment.yml
+ARG env_name=rs-notebooks
+
+# adding notebooks and other misc files
+ADD *.ipynb /notebooks/
+ADD sample.geojson /notebooks/
+
+# creating user
+RUN useradd -m beyond &&\
+    chown -R beyond:beyond /notebooks
+
+# creating environment
+ADD environment_jupyterlab.yml ${dest_yml}
+RUN mamba env create --file ${dest_yml} --name ${env_name}
+
+# setting up shell to use conda run
+# this ensures that the CMD command is run in the correct environment
+SHELL ["conda", "run", "--no-capture-output","-n", "rs-notebooks", "/bin/bash", "-c"]
+
+# setting up jupyter lab to use bash as a terminal
+# this ensures that the right environment is activated in the terminal
+# should allow users to run pip installs from notebooks/jupyter lab terminal
+# without encountering issues with different environments
+RUN jupyter lab --generate-config &&\
+    echo 'c.NotebookApp.terminado_settings = { "shell_command": ["/bin/bash"] }' >> /root/.jupyter/jupyter_lab_config.py
+
+# setting up default landing folder
+WORKDIR /notebooks
+
+# choosing new user as default
+USER beyond
+
+CMD jupyter lab --ip 0.0.0.0 --no-browser
